@@ -21,7 +21,7 @@ public class Player1 : MonoBehaviour {
         sparksParticleEffect = Instantiate(sparksParticleEffect, transform.position, transform.rotation);
         particleSystem = sparksParticleEffect.GetComponent<ParticleSystem>();
         particleEmitter = particleSystem.emission;
-        particleEmitter.enabled = false;
+        particleEmitter.enabled = true;
     }
 
     // Update is called once per frame
@@ -44,8 +44,10 @@ public class Player1 : MonoBehaviour {
     
     /* Create sparks upon collision */
     void OnCollisionEnter(Collision col) {
+        sparksParticleEffect.transform.position = col.contacts[0].point;
+        //sparksParticleEffect.transform.rotation = this.transform.rotation;
+
         if (col.gameObject.name == "Sphere2") {
-            particleEmitter.enabled = true;
             particleSystem.Play();
         }
     }
