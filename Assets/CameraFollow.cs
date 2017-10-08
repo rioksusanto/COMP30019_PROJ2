@@ -9,14 +9,15 @@ public class CameraFollow : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        
+	}
+	
+	// Update is called once per frame
+	void Update ()
+    {
         float x = cam.transform.position.x + dist;
         float y = cam.transform.position.y + dist;
         float z = cam.transform.position.z + dist;
         this.transform.position = new Vector3(x, y, z);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    }
 }
