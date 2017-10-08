@@ -7,20 +7,21 @@ public class Player1 : MonoBehaviour {
     public Camera camera;
     public bool speed = false;
     public Color color = Color.green;
+    public Transform sparksParticleEffect;
 
     private Rigidbody rb;
     private ParticleSystem particleSystem;
-    private ParticleSystem.EmissionModule emission;
+    private ParticleSystem.EmissionModule particleEmitter;
 
     // Use this for initialization
     void Start() {
         rb = this.GetComponent<Rigidbody>();
         this.GetComponent<Renderer>().material.color = color;
 
-        particleSystem = GetComponent<ParticleSystem>();
-        particleSystem.Play();
-        emission = particleSystem.emission;
-        emission.enabled = false;
+        sparksParticleEffect = Instantiate(sparksParticleEffect, transform.position, transform.rotation);
+        particleSystem = sparksParticleEffect.GetComponent<ParticleSystem>();
+        particleEmitter = particleSystem.emission;
+        particleEmitter.enabled = false;
     }
 
     // Update is called once per frame
@@ -44,7 +45,7 @@ public class Player1 : MonoBehaviour {
     /* Create sparks upon collision */
     void OnCollisionEnter(Collision col) {
         if (col.gameObject.name == "Sphere2") {
-            emission.enabled = true;
+            particleEmitter.enabled = true;
             particleSystem.Play();
         }
     }
