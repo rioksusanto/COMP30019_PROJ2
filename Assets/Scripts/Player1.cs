@@ -9,11 +9,18 @@ public class Player1 : MonoBehaviour {
     public Color color = Color.green;
 
     private Rigidbody rb;
+    private ParticleSystem particleSystem;
+    private ParticleSystem.EmissionModule emission;
 
     // Use this for initialization
     void Start() {
         rb = this.GetComponent<Rigidbody>();
         this.GetComponent<Renderer>().material.color = color;
+
+        particleSystem = GetComponent<ParticleSystem>();
+        particleSystem.Play();
+        emission = particleSystem.emission;
+        emission.enabled = false;
     }
 
     // Update is called once per frame
@@ -31,6 +38,14 @@ public class Player1 : MonoBehaviour {
         }
         if (Input.GetKey(KeyCode.D)) {
             rb.transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
+        }
+    }
+    
+    /* Create sparks upon collision */
+    void OnCollisionEnter(Collision col) {
+        if (col.gameObject.name == "Sphere2") {
+            emission.enabled = true;
+            particleSystem.Play();
         }
     }
 }
