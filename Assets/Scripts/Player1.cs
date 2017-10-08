@@ -5,12 +5,15 @@ using UnityEngine;
 public class Player1 : MonoBehaviour {
     public float thrust;
     public Camera camera;
+    public bool speed = false;
+    public Color color = Color.green;
 
     private Rigidbody rb;
 
     // Use this for initialization
     void Start() {
         rb = this.GetComponent<Rigidbody>();
+        this.GetComponent<Renderer>().material.color = color;
     }
 
     // Update is called once per frame
