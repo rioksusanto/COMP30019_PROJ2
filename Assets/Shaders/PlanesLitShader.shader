@@ -10,6 +10,7 @@ Shader "Lit/PlanesLitShader"
 		_Kd ("Diffuse Intensity", Range (0.0, 1.0)) = 1.0
 		_Ks ("Specular Intensity", Range (0.0, 1.0)) = 0.25
 		_specN ("Specular Power", Float) = 100.0
+		_Color ("Main Color", Color) = (.5,.5,.5,1)
 	}
 	SubShader
 	{
@@ -46,6 +47,7 @@ Shader "Lit/PlanesLitShader"
 			uniform float _Kd;
 			uniform float _Ks;
 			uniform float _specN;
+			uniform float4 _Color;
 
 			// Implementation of the vertex shader
 			vertOut vert(vertIn v)
@@ -61,7 +63,7 @@ Shader "Lit/PlanesLitShader"
 
 				// Transform vertex in world coordinates to camera coordinates, and pass colour
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.color = v.color;
+				o.color = _Color;
 
 				// Pass out the world vertex position and world normal to be interpolated
 				// in the fragment shader (and utilised)
