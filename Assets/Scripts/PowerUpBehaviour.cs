@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PowerUpBehaviour : MonoBehaviour {
     public float spinSpeed;
-    private Player playerScript;
+    private Player player;
     private UnityEngine.Renderer playerRender;
     private Color speedyColor = Color.red;
     private bool taken = false;
@@ -12,6 +12,8 @@ public class PowerUpBehaviour : MonoBehaviour {
     public Transform powerUpParticleEffect;
     private ParticleSystem particleSystem;
     private ParticleSystem.EmissionModule emission;
+    private float timer = 0;
+    private int lifeTime = 20;
 
     void Start () {
 
@@ -19,48 +21,28 @@ public class PowerUpBehaviour : MonoBehaviour {
         powerUpParticleEffect = Instantiate(powerUpParticleEffect, transform.position, Quaternion.Euler(-90, 0, 0));
         particleSystem = powerUpParticleEffect.GetComponent<ParticleSystem>();
         particleSystem.Play();
+        Invoke("TimeOut", lifeTime);
     }
 	
 	void Update () {
         this.transform.localRotation *= Quaternion.AngleAxis(Time.deltaTime * spinSpeed, new Vector3(0.0f, 1.0f, 0.0f));
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        
-        playerScript = other.gameObject.GetComponent<Player>();
-        playerRender = other.gameObject.GetComponent<Renderer>();
-        if (playerScript && !taken && playerScript.speed)
-        {
-            Destroy(this.gameObject);
+    void OnTriggerEnter(Collider col) {
+        player = col.gameObject.GetComponent<Player>();
+        if(player != null) {
+            player.increasePowerUpCount();
         }
 
-        else if (playerScript && !taken)
-        {
-            playerScript.thrust *= 1.5f;
-            playerRender.material.color = speedyColor;
-            playerScript.speed = true;
-            Invoke("StopPower", 5);
-            Invoke("testis", 2);
-            taken = true;
-        }
         this.GetComponent<Renderer>().enabled = false;
-        Physics.IgnoreCollision(other, this.GetComponent<Collider>());
+        Physics.IgnoreCollision(col, this.GetComponent<Collider>());
 
-        Destroy(this.powerUpParticleEffect.gameObject);
-
-    }
-
-    void testis()
-    {
-        Debug.Log("test");
-    }
-
-    void StopPower()
-    {
-        playerScript.thrust /= 1.5f;
-        playerRender.material.color = playerScript.getColor();
-        playerScript.speed = false;
         Destroy(this.gameObject);
+        Destroy(this.powerUpParticleEffect.gameObject);
+    }
+
+    void TimeOut() {
+        Destroy(this.gameObject);
+        Destroy(this.powerUpParticleEffect.gameObject);
     }
 }
