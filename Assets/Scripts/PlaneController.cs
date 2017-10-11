@@ -20,7 +20,7 @@ public class PlaneController : MonoBehaviour {
 	void Update () {
         i += Time.deltaTime;
 
-        if (i >= spawnTime) 
+        if (i >= spawnTime && !GameState.gameEnded) 
         {
             PowerUpBehaviour p = Instantiate<PowerUpBehaviour>(powerUpPrefab);
             p.transform.position = new Vector3(Random.Range(-scale_x, scale_x), 2.0f, Random.Range(-scale_z, scale_z));
