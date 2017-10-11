@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PowerUpBehaviour : MonoBehaviour {
     public float spinSpeed;
-    private Player1 playerScript;
+    private Player playerScript;
     private UnityEngine.Renderer playerRender;
     private Color speedyColor = Color.red;
     private bool taken = false;
@@ -28,7 +28,7 @@ public class PowerUpBehaviour : MonoBehaviour {
     void OnTriggerEnter(Collider other)
     {
         
-        playerScript = other.gameObject.GetComponent<Player1>();
+        playerScript = other.gameObject.GetComponent<Player>();
         playerRender = other.gameObject.GetComponent<Renderer>();
         if (playerScript && !taken && playerScript.speed)
         {
@@ -58,8 +58,8 @@ public class PowerUpBehaviour : MonoBehaviour {
 
     void StopPower()
     {
-        playerScript.thrust /= 2;
-        playerRender.material.color = playerScript.color;
+        playerScript.thrust /= 1.5f;
+        playerRender.material.color = playerScript.getColor();
         playerScript.speed = false;
         Destroy(this.gameObject);
     }
