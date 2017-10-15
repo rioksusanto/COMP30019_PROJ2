@@ -25,20 +25,22 @@ public class CameraFollower : MonoBehaviour {
     }
 
     private void Update() {
-        if (playerObject.isPlayer1) {
-            if (Input.GetKey(KeyCode.A)) {
-                angleToPlayer -= sensitivity;
+        if (!GameState.gameEnded) {
+            if (playerObject.isPlayer1) {
+                if (Input.GetKey(KeyCode.A)) {
+                    angleToPlayer -= sensitivity;
+                }
+                if (Input.GetKey(KeyCode.D)) {
+                    angleToPlayer += sensitivity;
+                }
             }
-            if (Input.GetKey(KeyCode.D)) {
-                angleToPlayer += sensitivity;
-            }
-        }
-        else {
-            if (Input.GetKey(KeyCode.LeftArrow)) {
-                angleToPlayer -= sensitivity;
-            }
-            if (Input.GetKey(KeyCode.RightArrow)) {
-                angleToPlayer += sensitivity;
+            else {
+                if (Input.GetKey(KeyCode.LeftArrow)) {
+                    angleToPlayer -= sensitivity;
+                }
+                if (Input.GetKey(KeyCode.RightArrow)) {
+                    angleToPlayer += sensitivity;
+                }
             }
         }
     }
