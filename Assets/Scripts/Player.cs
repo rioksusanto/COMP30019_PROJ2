@@ -13,7 +13,7 @@ public class Player : MonoBehaviour {
     public Transform sparksParticleEffect;
 
     /* UI elements */
-    public GameObject[] powerUpsIndicator;
+    public GameObject[] SpeedyIndicator;
     public Text fps;
     public Text winState;
     public Text endGameDescription;
@@ -23,11 +23,19 @@ public class Player : MonoBehaviour {
 
     /* Stores current number of power ups */
     private int powerUpCount = 0; 
+    private int speedyCount = 0; 
 
     private Color color;
     private Rigidbody rb;
     private ParticleSystem particleSystem;
     private ParticleSystem.EmissionModule particleEmitter;
+    private bool big = false;
+    public PlaneController plane;
+
+    public bool getBig()
+    {
+        return this.big;
+    }
 
     // Use this for initialization
     void Start() {
@@ -40,7 +48,7 @@ public class Player : MonoBehaviour {
         particleEmitter.enabled = true;
 
         /* Hide all the power up icons first */
-        foreach(GameObject powerUp in powerUpsIndicator) {
+        foreach (GameObject powerUp in SpeedyIndicator) {
             powerUp.SetActive(false);
         }
         fps.text = ((int)(1.0f / Time.smoothDeltaTime)).ToString();
@@ -58,54 +66,71 @@ public class Player : MonoBehaviour {
         cameraForward.y = 0;
 
         /* Allow movement controls only when game has started */
-        if (!GameState.gameEnded) {
-            if (isPlayer1) {
-                if (Input.GetKey(KeyCode.W)) {
+        if (!GameState.gameEnded)
+        {
+            clearScreenText();
+
+            if (isPlayer1)
+            {
+                if (Input.GetKey(KeyCode.W))
+                {
                     rb.AddForce(cameraForward * thrust);
                 }
-                if (Input.GetKey(KeyCode.S)) {
+                if (Input.GetKey(KeyCode.S))
+                {
                     rb.AddForce(-cameraForward * thrust);
                 }
-                if (Input.GetKey(KeyCode.A)) {
+                if (Input.GetKey(KeyCode.A))
+                {
                     rb.transform.Rotate(new Vector3(0, 30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKey(KeyCode.D)) {
+                if (Input.GetKey(KeyCode.D))
+                {
                     rb.transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKeyDown(KeyCode.Space) && powerUpCount > 0) {
+                if (Input.GetKeyDown(KeyCode.Space) && speedyCount > 0)
+                {
                     boostPowerUp(cameraForward);
                 }
                 //Debug.Log("Speed: " + rb.velocity + " | force: " + cameraForward*thrust);
             }
-            else {
-                if (Input.GetKey(KeyCode.UpArrow)) {
+            else
+            {
+                if (Input.GetKey(KeyCode.UpArrow))
+                {
                     rb.AddForce(cameraForward * thrust);
                 }
-                if (Input.GetKey(KeyCode.DownArrow)) {
+                if (Input.GetKey(KeyCode.DownArrow))
+                {
                     rb.AddForce(-cameraForward * thrust);
                 }
-                if (Input.GetKey(KeyCode.LeftArrow)) {
+                if (Input.GetKey(KeyCode.LeftArrow))
+                {
                     rb.transform.Rotate(new Vector3(0, 30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKey(KeyCode.RightArrow)) {
+                if (Input.GetKey(KeyCode.RightArrow))
+                {
                     rb.transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKeyDown(KeyCode.KeypadEnter) && powerUpCount > 0) {
+                if (Input.GetKeyDown(KeyCode.KeypadEnter) && speedyCount > 0)
+                {
                     boostPowerUp(cameraForward);
                 }
             }
-        } else {
+        }
+        else
+        {
             showEndGameInformation();
-        }
 
-        /* Check for options after game ended. P to play again and H to go home/main screen. */
-        if (Input.GetKey(KeyCode.P)) {
-            GameState.gameEnded = false;
-            winState.text = "";
-            endGameDescription.text = "";
-        }
-        if (Input.GetKey(KeyCode.H)) {
-            SceneManager.LoadScene("Start");
+            /* Check for options after game ended. P to play again and H to go home/main screen. */
+            if (Input.GetKey(KeyCode.P))
+            {
+                GameState.gameEnded = false;
+            }
+            if (Input.GetKey(KeyCode.H))
+            {
+                SceneManager.LoadScene("Start");
+            }
         }
     }
 
@@ -127,10 +152,19 @@ public class Player : MonoBehaviour {
 
     /* Power up effect */
     private void boostPowerUp(Vector3 cameraForward) {
-        powerUpCount--;
-        powerUpsIndicator[powerUpCount].SetActive(false);
-        this.maxVelocity = 300f;
-        rb.AddForce(cameraForward * thrust * 100);
+        speedyCount--;
+        SpeedyIndicator[speedyCount].SetActive(false);
+        this.maxVelocity *= 10f;
+        /*if (this.transform.position.x > plane.getScale_x() + 2 || this.transform.position.x < -plane.getScale_x() - 2
+            || this.transform.position.z > plane.getScale_z() + 2 || this.transform.position.z < -plane.getScale_z() - 2)
+        {
+            Vector3 cameraUpward = camera.transform.up;
+            cameraUpward.x = 0;
+            cameraUpward.z = 0;
+            rb.AddForce(cameraUpward * thrust * 10);
+        }*/
+        rb.AddForce(cameraForward * thrust * 50);
+        
     }
 
     /* Restarts the game if player falls off */
@@ -148,14 +182,39 @@ public class Player : MonoBehaviour {
     }
 
     /* Called by power up prefab when player collides with it */
-    public void increasePowerUpCount() {
-        if(powerUpCount < 3) {
-            powerUpsIndicator[powerUpCount].SetActive(true);
-            powerUpCount++;
+    public void increaseSpeedyCount() {
+        if(speedyCount < 3) {
+            SpeedyIndicator[speedyCount].SetActive(true);
+            speedyCount++;
         }
+    }
+
+    public void clearScreenText()
+    {
+        winState.text = "";
+        endGameDescription.text = "";
     }
 
     public Color getColor() {
         return this.color;
+    }
+
+    public void massUp()
+    {
+        big = true;
+        this.GetComponent<Rigidbody>().mass *= 30;
+        this.thrust *= 30;
+        this.maxVelocity = this.maxVelocity * 30;
+        this.GetComponent<Renderer>().material.color = Color.grey;
+        Invoke("massDown", 10);
+    }
+
+    public void massDown()
+    {
+        big = false;
+        this.GetComponent<Rigidbody>().mass /= 30;
+        this.thrust /= 30;
+        this.maxVelocity = this.maxVelocity / 30;
+        this.GetComponent<Renderer>().material.color = color;
     }
 }

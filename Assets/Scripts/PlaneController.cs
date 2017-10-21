@@ -8,12 +8,29 @@ public class PlaneController : MonoBehaviour {
     private float i = 0;
     private float scale_x;
     private float scale_z;
+    private float scale_y;
     private float spawnTime = 2;
+
+    public float getScale_x()
+    {
+        return scale_x;
+    }
+
+    public float getScale_z()
+    {
+        return scale_z;
+    }
+
+    public float getScale_y()
+    {
+        return scale_y;
+    }
 
     // Use this for initialization
     void Start () {
-		scale_x = this.transform.localScale.x * 2;
-        scale_z = this.transform.localScale.z * 2;
+		scale_x = this.transform.localScale.x * 4;
+        scale_z = this.transform.localScale.z * 4;
+        scale_y = this.transform.localScale.y * 4;
     }
 	
 	// Update is called once per frame
