@@ -10,6 +10,7 @@ public class PlaneController : MonoBehaviour {
     private float scale_z;
     private float scale_y;
     private float spawnTime = 2;
+    public bool hider = false;
 
     public float getScale_x()
     {
