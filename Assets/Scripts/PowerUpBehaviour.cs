@@ -6,7 +6,6 @@ public class PowerUpBehaviour : MonoBehaviour {
     public float spinSpeed;
     private Player player;
     private UnityEngine.Renderer playerRender;
-    private Color speedyColor = Color.red;
     private bool taken = false;
 
     public Transform powerUpParticleEffect;
@@ -14,6 +13,7 @@ public class PowerUpBehaviour : MonoBehaviour {
     private ParticleSystem.EmissionModule emission;
     private float timer = 0;
     private int lifeTime = 20;
+    private int type;
 
     void Start () {
 
@@ -21,6 +21,15 @@ public class PowerUpBehaviour : MonoBehaviour {
         powerUpParticleEffect = Instantiate(powerUpParticleEffect, transform.position, Quaternion.Euler(-90, 0, 0));
         particleSystem = powerUpParticleEffect.GetComponent<ParticleSystem>();
         particleSystem.Play();
+        type = Random.Range(1, 4);
+        if (type == 1 || type == 2)
+        {
+            this.GetComponent<Renderer>().material.color = Color.yellow;
+        }
+        else if (type != 3)
+        {
+            this.GetComponent<Renderer>().material.color = Color.blue;
+        }
         Invoke("TimeOut", lifeTime);
     }
 	
@@ -30,8 +39,21 @@ public class PowerUpBehaviour : MonoBehaviour {
 
     void OnTriggerEnter(Collider col) {
         player = col.gameObject.GetComponent<Player>();
-        if(player != null) {
-            player.increasePowerUpCount();
+        if (player != null) {
+            Debug.Log(type);
+            if (type != 3)
+            {
+                Debug.Log("Speed Increase");
+                player.increaseSpeedyCount();
+            }
+            else
+            {
+                if (!player.getBig())
+                {
+                    Debug.Log("Size increase");
+                    player.sizeUp();
+                }
+            }
         }
 
         this.GetComponent<Renderer>().enabled = false;
