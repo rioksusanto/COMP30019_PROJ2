@@ -30,23 +30,31 @@ public class Player : MonoBehaviour {
     private ParticleSystem particleSystem;
     private ParticleSystem.EmissionModule particleEmitter;
     private bool big = false;
+    private bool hiding = false;
     public PlaneController plane;
+    GameObject ring;
 
     public bool getBig()
     {
         return this.big;
     }
 
+    public bool getHiding()
+    {
+        return this.hiding;
+    }
+
     // Use this for initialization
     void Start() {
         rb = this.GetComponent<Rigidbody>();
         color = this.GetComponent<Renderer>().material.color;
+        ring = this.transform.GetChild(0).gameObject;
 
         sparksParticleEffect = Instantiate(sparksParticleEffect, transform.position, transform.rotation);
         particleSystem = sparksParticleEffect.GetComponent<ParticleSystem>();
         particleEmitter = particleSystem.emission;
         particleEmitter.enabled = true;
-
+        
         /* Hide all the power up icons first */
         foreach (GameObject powerUp in SpeedyIndicator) {
             powerUp.SetActive(false);
@@ -207,6 +215,7 @@ public class Player : MonoBehaviour {
         this.maxVelocity = this.maxVelocity * 30;
         this.GetComponent<Renderer>().material.color = Color.grey;
         Invoke("massDown", 10);
+        plane.hider = true;
     }
 
     public void massDown()
@@ -216,5 +225,23 @@ public class Player : MonoBehaviour {
         this.thrust /= 30;
         this.maxVelocity = this.maxVelocity / 30;
         this.GetComponent<Renderer>().material.color = color;
+        plane.hider = false;
+    }
+
+    public void hide()
+    {
+        this.hiding = true;
+        gameObject.layer = LayerMask.NameToLayer("Invisibility");
+        ring.layer = LayerMask.NameToLayer("Invisibility");
+        camera.cullingMask |= 1 << LayerMask.NameToLayer("Invisibility");
+        Invoke("unhide", 10);
+    }
+
+    public void unhide()
+    {
+        this.hiding = false;
+        gameObject.layer = LayerMask.NameToLayer("Default");
+        ring.layer = LayerMask.NameToLayer("Default");
+        camera.cullingMask &= ~(1 << LayerMask.NameToLayer("Invisibility"));
     }
 }

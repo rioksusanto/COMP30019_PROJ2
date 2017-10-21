@@ -21,14 +21,21 @@ public class PowerUpBehaviour : MonoBehaviour {
         powerUpParticleEffect = Instantiate(powerUpParticleEffect, transform.position, Quaternion.Euler(-90, 0, 0));
         particleSystem = powerUpParticleEffect.GetComponent<ParticleSystem>();
         particleSystem.Play();
-        type = Random.Range(1, 4);
-        if (type == 1 || type == 2)
+        type = Random.Range(0, 10);
+        if (type < 7)
         {
+            type = 1;
             this.GetComponent<Renderer>().material.color = Color.yellow;
         }
-        else if (type != 3)
+        else if (type < 8)
         {
+            type = 2;
             this.GetComponent<Renderer>().material.color = Color.blue;
+        }
+        else
+        {
+            type = 3;
+            this.GetComponent<Renderer>().material.color = Color.green;
         }
         Invoke("TimeOut", lifeTime);
     }
@@ -41,17 +48,25 @@ public class PowerUpBehaviour : MonoBehaviour {
         player = col.gameObject.GetComponent<Player>();
         if (player != null) {
             Debug.Log(type);
-            if (type != 3)
+            if (type == 1)
             {
                 Debug.Log("Speed Increase");
                 player.increaseSpeedyCount();
             }
-            else
+            else if (type == 2)
             {
                 if (!player.getBig())
                 {
                     Debug.Log("Size increase");
                     player.massUp();
+                }
+            }
+            else
+            {
+                if (!player.getHiding() || !player.plane.hider)
+                {
+                    Debug.Log("Invisibile mode");
+                    player.hide();
                 }
             }
         }
