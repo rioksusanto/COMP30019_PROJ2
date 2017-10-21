@@ -17,6 +17,7 @@ public class Player : MonoBehaviour {
     public Text fps;
     public Text winState;
     public Text endGameDescription;
+    public Text score;
 
     /* Stores value used to detect at which y value a player is indicated as dead (fall off plane) */
     private int deathThreshold = -10;
@@ -62,6 +63,7 @@ public class Player : MonoBehaviour {
         fps.text = ((int)(1.0f / Time.smoothDeltaTime)).ToString();
         winState.text = "";
         endGameDescription.text = "";
+        score.text = GameState.getScoreText(this.gameObject.name);
     }
 
     // Update is called once per frame
@@ -74,14 +76,11 @@ public class Player : MonoBehaviour {
         cameraForward.y = 0;
 
         /* Allow movement controls only when game has started */
-        if (!GameState.gameEnded)
-        {
-            clearScreenText();
+        if (!GameState.gameEnded) {
+            cleanScreenText();
 
-            if (isPlayer1)
-            {
-                if (Input.GetKey(KeyCode.W))
-                {
+            if (isPlayer1) {
+                if (Input.GetKey(KeyCode.W)) {
                     rb.AddForce(cameraForward * thrust);
                 }
                 if (Input.GetKey(KeyCode.S))
@@ -120,23 +119,20 @@ public class Player : MonoBehaviour {
                 {
                     rb.transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKeyDown(KeyCode.KeypadEnter) && speedyCount > 0)
+                if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && speedyCount > 0)
                 {
                     boostPowerUp(cameraForward);
                 }
             }
-        }
-        else
-        {
+        } else {
             showEndGameInformation();
+            score.text = GameState.getScoreText(this.gameObject.name);
 
             /* Check for options after game ended. P to play again and H to go home/main screen. */
-            if (Input.GetKey(KeyCode.P))
-            {
+            if (Input.GetKey(KeyCode.P)) {
                 GameState.gameEnded = false;
             }
-            if (Input.GetKey(KeyCode.H))
-            {
+            if (Input.GetKey(KeyCode.H)) {
                 SceneManager.LoadScene("Start");
             }
         }
@@ -154,6 +150,7 @@ public class Player : MonoBehaviour {
         sparksParticleEffect.transform.position = col.contacts[0].point;
 
         if (col.gameObject.tag == "Player") {
+            Debug.Log(col.relativeVelocity.magnitude);
             particleSystem.Play();
         }
     }
@@ -178,10 +175,16 @@ public class Player : MonoBehaviour {
     /* Restarts the game if player falls off */
     private void checkIfDead() {
         if (transform.position.y < deathThreshold) {
-            SceneManager.LoadScene("purification");
+            SceneManager.LoadScene("Game");
             GameState.gameEnded = true;
             GameState.losingPlayer = this.gameObject.name;
+            GameState.updateScores();
         }
+    }
+
+    public void cleanScreenText() {
+        winState.text = "";
+        endGameDescription.text = "";
     }
 
     private void showEndGameInformation() {
