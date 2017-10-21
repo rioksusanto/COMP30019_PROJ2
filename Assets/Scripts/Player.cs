@@ -199,17 +199,17 @@ public class Player : MonoBehaviour {
         return this.color;
     }
 
-    public void sizeUp()
+    public void massUp()
     {
         big = true;
         this.GetComponent<Rigidbody>().mass *= 30;
         this.thrust *= 30;
         this.maxVelocity = this.maxVelocity * 30;
         this.GetComponent<Renderer>().material.color = Color.grey;
-        Invoke("sizeDown", 10);
+        Invoke("massDown", 10);
     }
 
-    public void sizeDown()
+    public void massDown()
     {
         big = false;
         this.GetComponent<Rigidbody>().mass /= 30;

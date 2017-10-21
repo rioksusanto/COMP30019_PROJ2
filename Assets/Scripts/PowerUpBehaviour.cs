@@ -51,7 +51,7 @@ public class PowerUpBehaviour : MonoBehaviour {
                 if (!player.getBig())
                 {
                     Debug.Log("Size increase");
-                    player.sizeUp();
+                    player.massUp();
                 }
             }
         }
