@@ -17,6 +17,10 @@ public class StartScene : MonoBehaviour {
 
     public void StartGame() {
         GameState.gameEnded = false;
-        SceneManager.LoadScene("purification");
+        SceneManager.LoadScene("Game");
+    }
+
+    public void StartHelp() {
+        SceneManager.LoadScene("Help");
     }
 }

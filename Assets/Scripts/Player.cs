@@ -119,7 +119,7 @@ public class Player : MonoBehaviour {
                 {
                     rb.transform.Rotate(new Vector3(0, -30, 0) * Time.deltaTime);
                 }
-                if (Input.GetKeyDown(KeyCode.KeypadEnter) && speedyCount > 0)
+                if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && speedyCount > 0)
                 {
                     boostPowerUp(cameraForward);
                 }
@@ -175,7 +175,7 @@ public class Player : MonoBehaviour {
     /* Restarts the game if player falls off */
     private void checkIfDead() {
         if (transform.position.y < deathThreshold) {
-            SceneManager.LoadScene("purification");
+            SceneManager.LoadScene("Game");
             GameState.gameEnded = true;
             GameState.losingPlayer = this.gameObject.name;
             GameState.updateScores();
