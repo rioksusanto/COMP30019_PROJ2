@@ -26,6 +26,7 @@ Shader "Lit/PlanesLitShader"
 			#include "UnityCG.cginc"
 			#include "UnityLightingCommon.cginc"
 
+	
 			struct vertIn
 			{
 				float4 vertex : POSITION;

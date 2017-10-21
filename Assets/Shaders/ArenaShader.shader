@@ -1,8 +1,19 @@
-﻿Shader "Unlit/ArenaShader"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Unlit/ArenaShader"
 {
 	Properties
 	{
-		_MainTex ("Texture", 2D) = "white" {}
+		_MainColor ("_MainColor", Color) = (1, 1, 1, 1)
+		_GridThickness ("Grid Thickness", Float) = 0.01
+		_GridSpacing ("Grid Spacing", Float) = 10.0
+		_GridColour ("Grid Colour", Color) = (0.5, 1.0, 1.0, 1.0)
+		_BaseColour ("Base Colour", Color) = (0.0, 0.0, 0.0, 0.0)
+		[HDR] _EmissionColor("Emission Color", Color) = (0,0,0)
+		_EmissionMap ("Emission Map", 2D) = "black" {}
+		
 	}
 	SubShader
 	{
@@ -11,48 +22,72 @@
 
 		Pass
 		{
+			Tags { "LightMode" = "ForwardBase" }
+			
+			CGPROGRAM
+			#pragma target 3.0
+			#include "UnityStandardCoreForward.cginc"
+			#pragma shader_feature _EMISSION
+
+			#pragma vertex vertBase
+			#pragma fragment fragBase
+			
+
+			ENDCG
+		}
+		Pass
+		{
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			// make fog work
-			#pragma multi_compile_fog
 			
 			#include "UnityCG.cginc"
 
-			struct appdata
+			struct vertIn
 			{
 				float4 vertex : POSITION;
-				float2 uv : TEXCOORD0;
+				float4 color : COLOR;
 			};
 
-			struct v2f
+			struct vertOut
 			{
-				float2 uv : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
 				float4 vertex : SV_POSITION;
+				float4 worldPos : TEXCOORD0;
+				float4 color : COLOR;
 			};
 
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
+			uniform float4 _MainColor;
 			
-			v2f vert (appdata v)
+			
+			uniform float _GridThickness;
+			uniform float _GridSpacing;
+			uniform float4 _GridColour;
+			uniform float4 _BaseColour;
+			uniform float4 _EmissionColor;
+			uniform sampler2D _EmissionMap;
+
+			vertOut vert(vertIn v)
 			{
-				v2f o;
+				vertOut o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-				UNITY_TRANSFER_FOG(o,o.vertex);
+				o.color = v.color;
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 				return o;
 			}
 			
-			fixed4 frag (v2f i) : SV_Target
+			fixed4 frag (vertOut v) : SV_Target
 			{
-				// sample the texture
-				fixed4 col = tex2D(_MainTex, i.uv);
-				// apply fog
-				UNITY_APPLY_FOG(i.fogCoord, col);
-				return col;
+				if (frac(v.worldPos.x/_GridSpacing) < _GridThickness || frac(v.worldPos.y/_GridSpacing) < _GridThickness) 
+				{
+					return _GridColour;
+				}
+				else 
+				{
+					return _BaseColour;
+				}
 			}
 			ENDCG
 		}
 	}
+	FallBack "Diffuse"
 }
