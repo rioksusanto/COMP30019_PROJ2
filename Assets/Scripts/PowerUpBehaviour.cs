@@ -6,7 +6,6 @@ public class PowerUpBehaviour : MonoBehaviour {
     public float spinSpeed;
     private Player player;
     private UnityEngine.Renderer playerRender;
-    private Color speedyColor = Color.red;
     private bool taken = false;
 
     public Transform powerUpParticleEffect;
@@ -14,6 +13,7 @@ public class PowerUpBehaviour : MonoBehaviour {
     private ParticleSystem.EmissionModule emission;
     private float timer = 0;
     private int lifeTime = 20;
+    private int type;
 
     void Start () {
 
@@ -21,6 +21,22 @@ public class PowerUpBehaviour : MonoBehaviour {
         powerUpParticleEffect = Instantiate(powerUpParticleEffect, transform.position, Quaternion.Euler(-90, 0, 0));
         particleSystem = powerUpParticleEffect.GetComponent<ParticleSystem>();
         particleSystem.Play();
+        type = Random.Range(0, 10);
+        if (type < 7)
+        {
+            type = 1;
+            this.GetComponent<Renderer>().material.color = Color.yellow;
+        }
+        else if (type < 8)
+        {
+            type = 2;
+            this.GetComponent<Renderer>().material.color = Color.blue;
+        }
+        else
+        {
+            type = 3;
+            this.GetComponent<Renderer>().material.color = Color.green;
+        }
         Invoke("TimeOut", lifeTime);
     }
 	
@@ -30,8 +46,29 @@ public class PowerUpBehaviour : MonoBehaviour {
 
     void OnTriggerEnter(Collider col) {
         player = col.gameObject.GetComponent<Player>();
-        if(player != null) {
-            player.increasePowerUpCount();
+        if (player != null) {
+            Debug.Log(type);
+            if (type == 1)
+            {
+                Debug.Log("Speed Increase");
+                player.increaseSpeedyCount();
+            }
+            else if (type == 2)
+            {
+                if (!player.getBig())
+                {
+                    Debug.Log("Size increase");
+                    player.massUp();
+                }
+            }
+            else
+            {
+                if (!player.getHiding() || !player.plane.hider)
+                {
+                    Debug.Log("Invisibile mode");
+                    player.hide();
+                }
+            }
         }
 
         this.GetComponent<Renderer>().enabled = false;
