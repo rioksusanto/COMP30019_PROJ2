@@ -1,8 +1,5 @@
-﻿// Upgrade NOTE: replaced tex2D unity_Lightmap with UNITY_SAMPLE_TEX2D
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+﻿// Shader for the arena, draws bright colored grid on darker surface and gets illuminated by emissive surfaces.
+// Aim is to give off a neon/tron type of vibe, as the setting for our game.
 
 Shader "Unlit/ArenaShader"
 {
@@ -10,9 +7,9 @@ Shader "Unlit/ArenaShader"
 	{
 		_MainTex ("Base (RGB)", 2D) = "white" {}
 		_MainColor ("MainColor", Color) = (1, 1, 1, 1)
-		_GridThickness ("Grid Thickness", Float) = 0.01
-		_GridSpacing ("Grid Spacing", Float) = 10.0
-		_GridColour ("Grid Colour", Color) = (0.5, 1.0, 1.0, 1.0)
+		_LineThickness ("Line Thickness", Float) = 0.01
+		_LineSpacing ("Line Spacing", Float) = 10.0
+		_LineColor ("Line Color", Color) = (0.5, 1.0, 1.0, 1.0)
 	}
 	SubShader
 	{
@@ -21,21 +18,19 @@ Shader "Unlit/ArenaShader"
 		Pass
 		{
 			CGPROGRAM
-			#pragma shader_feature _EMISSION
 
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile LIGHTMAP_ON LIGHTMAP_OFF
 			
 			#include "UnityCG.cginc"
-			#include "AutoLight.cginc"
 			#include "Lighting.cginc"
+			#include "UnityLightingCommon.cginc"
 			
 			struct vertIn
 			{
 				float4 vertex : POSITION;
 				float4 color : COLOR;
-				float2 texcoord1 : TEXCOORD1;
+				float2 lightMapUV : TEXCOORD1;
 			};
 
 			struct vertOut
@@ -46,49 +41,45 @@ Shader "Unlit/ArenaShader"
 				float2 lightMapUV : TEXCOORD1;
 			};
 
-			sampler2D _MainTex;
+			//Properties initialisation
+			uniform sampler2D _MainTex;
 			uniform float4 _MainColor;
-			uniform float _GridThickness;
-			uniform float _GridSpacing;
-			uniform float4 _GridColour;
+			uniform float _LineThickness;
+			uniform float _LineSpacing;
+			uniform float4 _LineColor;
 
-			
+			//Simple vertex shader to setup position vertices and lightmap uv
 			vertOut vert(vertIn v)
 			{
 				vertOut o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				o.color = _MainColor;
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex);
-				o.lightMapUV = ((v.texcoord1.xy * unity_LightmapST.xy) + unity_LightmapST.zw);
+				o.color = _MainColor;
+				o.lightMapUV = ((v.lightMapUV.xy * unity_LightmapST.xy) + unity_LightmapST.zw);
 				return o;
 			}
-			
+			//Fragment shader that will draw out grid based on position and bake lightmap from emissive materials
 			float4 frag (vertOut v) : SV_Target
 			{
 				float4 output;
 				float3 base = v.color.rgb;
 				fixed4 lightmap = UNITY_SAMPLE_TEX2D(unity_Lightmap, v.lightMapUV);
-				
-				//float4 albedo = tex2D(_MainTex, v.worldPos);
-				//fixed3 lightmap = DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, v.lightMapUV));
-				//output = float4(albedo.rgb * UNITY_LIGHTMODEL_AMBIENT.rgb, albedo.a);
-				if (frac(v.worldPos.x/_GridSpacing) < _GridThickness || frac(v.worldPos.z/_GridSpacing) < _GridThickness) 
+				//Shades grid lines
+				if (frac(v.worldPos.x/_LineSpacing) < _LineThickness || frac(v.worldPos.z/_LineSpacing) < _LineThickness) 
 				{
-					return _GridColour;
+					return _LineColor;
 				}
 				else 
 				{
-					//float4 emission = tex2D(_EmissionMap, v.worldPos) * _EmissionColor;
-					//output.rgb *= lightmap.rgb * 0.5f;
+					//Applies baked lightmap data
 					output = tex2D(_MainTex, v.worldPos) * lightmap * lightmap.a;
+					//Applies base color
 					output.rgb += base * UNITY_LIGHTMODEL_AMBIENT.rgb;
 					return output;
 				}
 
 			}
-			
 			ENDCG
 		}
 	}
-	FallBack "Diffuse"
 }
