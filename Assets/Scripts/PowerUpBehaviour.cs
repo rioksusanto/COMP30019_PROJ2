@@ -1,4 +1,9 @@
-﻿﻿using System.Collections;
+﻿/*
+ * This script detects collisions between player and power ups
+ * and activates that power up on the player.
+ */ 
+
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,22 +26,20 @@ public class PowerUpBehaviour : MonoBehaviour {
         powerUpParticleEffect = Instantiate(powerUpParticleEffect, transform.position, Quaternion.Euler(-90, 0, 0));
         particleSystem = powerUpParticleEffect.GetComponent<ParticleSystem>();
         particleSystem.Play();
+
+        /* Configure current power up (ratio of spawn of Speed Boost:Condense:Invisible = 7:1:2) */
         type = Random.Range(0, 10);
-        if (type < 7)
-        {
+        if (type < 7) {
             type = 1;
             this.GetComponent<Renderer>().material.color = Color.yellow;
-        }
-        else if (type < 8)
-        {
+        } else if (type < 8) {
             type = 2;
             this.GetComponent<Renderer>().material.color = Color.blue;
-        }
-        else
-        {
+        } else {
             type = 3;
             this.GetComponent<Renderer>().material.color = Color.green;
         }
+
         Invoke("TimeOut", lifeTime);
     }
 	
@@ -44,29 +47,19 @@ public class PowerUpBehaviour : MonoBehaviour {
         this.transform.localRotation *= Quaternion.AngleAxis(Time.deltaTime * spinSpeed, new Vector3(0.0f, 1.0f, 0.0f));
     }
 
+    /* Applies effect of power up to player */
     void OnTriggerEnter(Collider col) {
         player = col.gameObject.GetComponent<Player>();
         if (player != null) {
-            Debug.Log(type);
-            if (type == 1)
-            {
-                Debug.Log("Speed Increase");
-                player.increaseSpeedyCount();
-            }
-            else if (type == 2)
-            {
-                if (!player.getBig())
-                {
-                    Debug.Log("Size increase");
-                    player.massUp();
+            if (type == 1) {
+                player.IncreaseSpeedyCount();
+            } else if (type == 2) {
+                if (!player.GetBig()) {
+                    player.MassUp();
                 }
-            }
-            else
-            {
-                if (!player.getHiding() || !player.plane.hider)
-                {
-                    Debug.Log("Invisibile mode");
-                    player.hide();
+            } else {
+                if (!player.GetHiding() || !player.plane.hider) {
+                    player.Hide();
                 }
             }
         }
@@ -78,6 +71,7 @@ public class PowerUpBehaviour : MonoBehaviour {
         Destroy(this.powerUpParticleEffect.gameObject);
     }
 
+    /* Removes power up */
     void TimeOut() {
         Destroy(this.gameObject);
         Destroy(this.powerUpParticleEffect.gameObject);

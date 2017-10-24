@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/*
+ * This script is a singleton class used to identify the current
+ * game's state (e.g. which player won, scores of each player).
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
