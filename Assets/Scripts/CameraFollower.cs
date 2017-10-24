@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/*
+ * This script manages camera movement, following the player from 
+ * a specific distance and making the game into third person point of view.
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +18,7 @@ public class CameraFollower : MonoBehaviour {
     private float sensitivity = 2.5f;
     private Player playerObject;
 
+    /*  Initialize camera position according to the player it is following */
     private void Start() {
         playerObject = (Player)player.GetComponent<Player>();
         if(playerObject.isPlayer1) {
@@ -24,6 +30,7 @@ public class CameraFollower : MonoBehaviour {
         this.transform.LookAt(player.position);
     }
 
+    /* Manage camera rotation */
     private void Update() {
         if (!GameState.gameEnded) {
             if (playerObject.isPlayer1) {
