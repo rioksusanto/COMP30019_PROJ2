@@ -77,7 +77,7 @@ Shader "Unlit/ArenaShader"
 			
 			fixed4 frag (vertOut v) : SV_Target
 			{
-				if (frac(v.worldPos.x/_GridSpacing) < _GridThickness || frac(v.worldPos.y/_GridSpacing) < _GridThickness) 
+				if (frac(v.worldPos.x/_GridSpacing) < _GridThickness || frac(v.worldPos.z/_GridSpacing) < _GridThickness) 
 				{
 					return _GridColour;
 				}
