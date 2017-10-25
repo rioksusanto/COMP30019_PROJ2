@@ -1,4 +1,6 @@
-﻿Shader "Unlit/PowerUpShader"
+﻿// This shader is for the power ups that spawn
+// Uses Blinn-Phong illumination model
+Shader "lit/PowerUpShader"
 {
 	//Define variable properties of lighting model
 	Properties
