@@ -6,15 +6,17 @@ Shader "Unlit/ArenaShader"
 	Properties
 	{
 		_MainTex ("Base (RGB)", 2D) = "white" {}
+		_EmissionMap ("Emission Map", 2D) = "white" {}
 		_MainColor ("MainColor", Color) = (1, 1, 1, 1)
 		_LineThickness ("Line Thickness", Float) = 0.01
 		_LineSpacing ("Line Spacing", Float) = 10.0
-		_LineColor ("Line Color", Color) = (0.5, 1.0, 1.0, 1.0)
+		[HDR] _LineColorB ("Line ColorB", Color) = (0, 0, 0)
+		[HDR] _LineColorR ("Line ColorR", Color) = (0, 0, 0)
 	}
 	SubShader
 	{
 		Tags { "RenderType"="Opaque" }
-
+		LOD 2000
 		Pass
 		{
 			CGPROGRAM
@@ -43,10 +45,12 @@ Shader "Unlit/ArenaShader"
 
 			//Properties initialisation
 			uniform sampler2D _MainTex;
+			uniform sampler2D _EmissionMap;
 			uniform float4 _MainColor;
 			uniform float _LineThickness;
 			uniform float _LineSpacing;
-			uniform float4 _LineColor;
+			uniform float4 _LineColorB;
+			uniform float4 _LineColorR;
 
 			//Simple vertex shader to setup position vertices and lightmap uv
 			vertOut vert(vertIn v)
@@ -64,19 +68,45 @@ Shader "Unlit/ArenaShader"
 				float4 output;
 				float3 base = v.color.rgb;
 				fixed4 lightmap = UNITY_SAMPLE_TEX2D(unity_Lightmap, v.lightMapUV);
-				//Shades grid lines
-				if (frac(v.worldPos.x/_LineSpacing) < _LineThickness || frac(v.worldPos.z/_LineSpacing) < _LineThickness) 
+				if (v.worldPos.z <= 0)
 				{
-					return _LineColor;
+					//Shades grid lines
+					if (frac(v.worldPos.x/_LineSpacing) < _LineThickness || frac(v.worldPos.z/_LineSpacing) < _LineThickness) 
+					{
+					
+						output = tex2D(_MainTex, v.worldPos);
+						float4 emission = tex2D(_EmissionMap, v.worldPos) * _LineColorB;
+						output.rgb += emission.rgb;
+						return output;
+					}
+					else 
+					{
+						//Applies baked lightmap data
+						output = tex2D(_MainTex, v.worldPos) * lightmap * lightmap.a;
+						output.rgb += base * UNITY_LIGHTMODEL_AMBIENT.rgb;
+						return output;
+					}
 				}
-				else 
+				else
 				{
-					//Applies baked lightmap data
-					output = tex2D(_MainTex, v.worldPos) * lightmap * lightmap.a;
-					//Applies base color
-					output.rgb += base * UNITY_LIGHTMODEL_AMBIENT.rgb;
-					return output;
+					//Shades grid lines
+					if (frac(v.worldPos.x/_LineSpacing) < _LineThickness || frac(v.worldPos.z/_LineSpacing) < _LineThickness) 
+					{
+					
+						output = tex2D(_MainTex, v.worldPos);
+						float4 emission = tex2D(_EmissionMap, v.worldPos) * _LineColorR;
+						output.rgb += emission.rgb;
+						return output;
+					}
+					else 
+					{
+						//Applies baked lightmap data
+						output = tex2D(_MainTex, v.worldPos) * lightmap * lightmap.a;
+						output.rgb += base * UNITY_LIGHTMODEL_AMBIENT.rgb;
+						return output;
+					}
 				}
+				
 
 			}
 			ENDCG

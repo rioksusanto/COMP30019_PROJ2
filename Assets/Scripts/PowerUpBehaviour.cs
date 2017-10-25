@@ -44,7 +44,7 @@ public class PowerUpBehaviour : MonoBehaviour {
     }
 	
 	void Update () {
-        this.transform.localRotation *= Quaternion.AngleAxis(Time.deltaTime * spinSpeed, new Vector3(0.0f, 1.0f, 0.0f));
+        this.transform.localRotation *= Quaternion.AngleAxis(Time.deltaTime * spinSpeed, new Vector3(1.0f, 2.0f, 3.0f));
     }
 
     /* Applies effect of power up to player */
